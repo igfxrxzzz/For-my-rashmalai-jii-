@@ -8,125 +8,196 @@
         body { margin: 0; padding: 0; background: #fff0f3; font-family: 'Arial Rounded MT Bold', sans-serif; overflow: hidden; text-align: center; touch-action: manipulation; }
         #game-container { position: relative; width: 100vw; height: 100vh; }
         
-        /* Music Button */
-        #music-btn { position: fixed; top: 20px; right: 20px; z-index: 1000; background: white; border: 2px solid #ffb7c5; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-
-        /* Countdown Style */
-        #countdown-screen { display: none; font-size: 80px; color: #ff4d6d; font-weight: bold; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 500; }
+        #music-btn { position: fixed; top: 15px; right: 15px; z-index: 1000; background: white; border: 2px solid #ffb7c5; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        #score { position: fixed; top: 15px; left: 15px; color: #ff8fa3; font-weight: bold; z-index: 1000; }
+        #countdown-screen { display: none; font-size: 80px; color: #ff4d6d; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 500; }
 
         .section { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; z-index: 100; }
-        .pass-input { padding: 12px; border-radius: 10px; border: 2px solid #ffb7c5; margin-bottom: 10px; width: 65%; font-size: 1.1rem; outline: none; }
+        
+        .balloon { position: absolute; bottom: -100px; width: 50px; height: 70px; border-radius: 50%; cursor: pointer; animation: floatUp 4s linear forwards; }
+        @keyframes floatUp { to { transform: translateY(-115vh); } }
 
         .envelope { width: 280px; height: 160px; background: #ffb7c5; border-radius: 0 0 10px 10px; position: relative; margin: auto; }
         .envelope::before { content: ""; position: absolute; top: -80px; left: 0; border-left: 140px solid transparent; border-right: 140px solid transparent; border-bottom: 80px solid #ffccd5; }
-        .letter { position: absolute; bottom: 5px; left: 10px; right: 10px; background: white; padding: 15px; border-radius: 5px; transition: 1s ease-in-out; font-size: 0.85rem; text-align: left; line-height: 1.4; color: #444; min-height: 100px; }
+        .letter { position: absolute; bottom: 5px; left: 10px; right: 10px; background: white; padding: 15px; border-radius: 5px; transition: 1s ease-in-out; font-size: 0.85rem; text-align: left; min-height: 100px; }
         .open-letter { transform: translateY(-150px); z-index: 5 !important; }
 
-        .btn-pookie { background: #ffb7c5; color: white; border: none; padding: 12px 25px; border-radius: 30px; cursor: pointer; margin-top: 15px; font-weight: bold; }
-        #no-btn { position: absolute; background: #adb5bd; color: white; border: none; padding: 10px 20px; border-radius: 30px; }
+        .cake-container { position: relative; width: 180px; height: 100px; margin: 30px auto; cursor: pointer; }
+        .cake-half { position: absolute; width: 90px; height: 90px; background: #ffccd5; transition: 1s; border-top: 10px solid #ffe5ec; }
+        .left-half { left: 0; border-radius: 15px 0 0 10px; border-right: 2px solid #ff8fa3; }
+        .right-half { right: 0; border-radius: 0 15px 10px 0; }
+        .cut .left-half { transform: translateX(-40px) rotate(-10deg); }
+        .cut .right-half { transform: translateX(40px) rotate(10deg); }
+
+        .btn-pookie { background: #ffb7c5; color: white; border: none; padding: 12px 25px; border-radius: 30px; cursor: pointer; margin-top: 10px; font-weight: bold; }
+        #no-btn { position: absolute; background: #adb5bd; color: white; border: none; padding: 12px 25px; border-radius: 30px; cursor: pointer; transition: 0.1s ease-out; z-index: 1000; }
+
+        .success-card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); border: 2px solid #ffccd5; width: 80%; margin: auto; }
+
+        .float-emoji { position: absolute; bottom: -50px; font-size: 30px; animation: floatUpEmoji 5s linear forwards; opacity: 0.8; pointer-events: none; z-index: 200; }
+        @keyframes floatUpEmoji { to { transform: translateY(-110vh) rotate(360deg); } }
+
+        /* Shake Effect */
+        .shake { animation: shakeAnim 0.3s; }
+        @keyframes shakeAnim { 0% { transform: translate(1px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(-1deg); } 50% { transform: translate(-1px, 2px) rotate(1deg); } 100% { transform: translate(1px, -1px) rotate(0deg); } }
     </style>
 </head>
 <body>
     <button id="music-btn" onclick="toggleMusic()">🎵</button>
     <audio id="love-music" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg"></audio>
+    <audio id="happy-music" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" type="audio/mpeg"></audio>
     
+    <div id="score" style="display:none;">Balloons: <span id="count">0</span>/10</div>
     <div id="countdown-screen"></div>
 
     <div id="game-container">
         <div id="start-screen" style="display: block; margin-top: 50%;">
-            <h1 style="color: #ff8fa3;">Aapke Liye Surprise! 🎀</h1>
+            <h1 style="color: #ff8fa3;">Rasmalai Ke Liye Surprise! 🎀</h1>
             <button class="btn-pookie" onclick="startGame()">Shuru Karein Aap 🐾</button>
         </div>
 
         <div id="pass-section" class="section">
             <h2 style="color: #ff8fa3;">Secret Code Daaliye Aap 🔐</h2>
-            <input type="text" id="pass-input" class="pass-input" placeholder="Hint: MeriRashmalai">
-            <br>
-            <button class="btn-pookie" onclick="handlePassword()">Unlock ✨</button>
+            <input type="text" id="pass-input" style="padding:10px; border-radius:10px; border:1px solid #ffb7c5;" placeholder="Hint: MeriRashmalai">
+            <br><button class="btn-pookie" onclick="handlePassword()">Unlock ✨</button>
         </div>
 
         <div id="letter-wrapper" class="section">
             <div class="envelope">
                 <div class="letter" id="letter">
                     <div id="typewriter"></div>
-                    <button id="next-final" class="btn-pookie" style="display:none; width:100%; font-size: 10px;" onclick="showFinalTrap()">Aage Badhiye 🐾</button>
+                    <button id="next-quiz" class="btn-pookie" style="display:none; width:100%; font-size:10px;" onclick="showQuiz()">Aage Badhiye 🐾</button>
                 </div>
             </div>
         </div>
 
+        <div id="quiz-section" class="section">
+            <h2 style="color: #ff8fa3;">"Mera Favourite Kaun?"</h2>
+            <button class="btn-pookie" onclick="showCake()">Aap (Rasmalai) ❤️</button>
+        </div>
+
+        <div id="cake-section" class="section">
+            <h2 style="color: #ff8fa3;">Cake Kaatiye Aap! 🍰</h2>
+            <div class="cake-container" id="cake-box" onclick="cutCake()">
+                <div class="cake-half left-half"></div>
+                <div class="cake-half right-half"></div>
+            </div>
+            <button class="btn-pookie" id="to-trap" style="display:none;" onclick="showTrap()">Next... 😉</button>
+        </div>
+
         <div id="love-trap" class="section">
             <h1 style="color: #ff7675;">Kya aap hamesha saath rahengi? ❤️</h1>
-            <button class="btn-pookie" style="padding: 15px 40px;" onclick="celebrate()">HAAN</button>
-            <button id="no-btn" onmouseover="moveNo()">NAHI</button>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <button id="yes-btn" class="btn-pookie" style="padding: 15px 40px; background: #ff4d6d; position: relative; z-index: 10;" onclick="celebrate()">HAAN</button>
+                <button id="no-btn" onmouseover="moveNo()" onclick="moveNo()">NAHI</button>
+            </div>
         </div>
 
         <div id="final-success" class="section">
-            <h1 style="color:#ff4d6d;">Happy Birthday, Rasmalai! ❤️✨</h1>
+            <div class="success-card">
+                <h1 style="color:#ff4d6d; margin:0;">I Knew It! 😎</h1>
+                <p style="color:#666; font-size: 1.1rem; line-height: 1.6;">
+                    Ab aap officialy meri Pookie hain! <br>
+                    <b>Happy Birthday, Rasmalai!</b><br>
+                    Stay happy hamesha. ❤️✨
+                </p>
+                <button class="btn-pookie" onclick="location.reload()">Replay? 🔄</button>
+            </div>
         </div>
     </div>
 
     <script>
-        let music = document.getElementById('love-music');
-        let isPlaying = false;
+        let loveMusic = document.getElementById('love-music');
+        let happyMusic = document.getElementById('happy-music');
+        let popped = 0; let isPlaying = false;
 
-        function toggleMusic() {
-            if (isPlaying) { music.pause(); } else { music.play(); }
+        function toggleMusic() { 
+            if (isPlaying) { loveMusic.pause(); happyMusic.pause(); } 
+            else { if(document.getElementById('final-success').style.display === 'block') happyMusic.play(); else loveMusic.play(); }
             isPlaying = !isPlaying;
         }
 
         function startGame() {
             document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('pass-section').style.display = 'block';
+            document.getElementById('score').style.display = 'block';
             if(!isPlaying) toggleMusic();
+            const bInt = setInterval(() => { if(popped>=10) clearInterval(bInt); else createBalloon(); }, 600);
+        }
+
+        function createBalloon() {
+            const b = document.createElement('div'); b.className = 'balloon';
+            b.style.backgroundColor = ['#ffccd5','#ffb7c5','#ff8fa3'][Math.floor(Math.random()*3)];
+            b.style.left = Math.random() * 80 + 'vw';
+            b.onclick = function() { 
+                this.remove(); popped++; document.getElementById('count').innerText = popped;
+                if(popped === 10) { document.getElementById('score').style.display = 'none'; document.getElementById('pass-section').style.display = 'block'; }
+            };
+            document.body.appendChild(b);
         }
 
         function handlePassword() {
             if(document.getElementById('pass-input').value.toLowerCase() === 'merirashmalai') {
                 document.getElementById('pass-section').style.display = 'none';
                 startCountdown();
-            } else { alert("Wrong Code! 😜"); }
+            } else alert("Galat Code! 😉");
         }
 
         function startCountdown() {
-            const cd = document.getElementById('countdown-screen');
-            cd.style.display = 'block';
-            let count = 3;
-            cd.innerHTML = count;
-            
+            const cd = document.getElementById('countdown-screen'); cd.style.display = 'block';
+            let c = 3; cd.innerHTML = c;
             let timer = setInterval(() => {
-                count--;
-                if(count > 0) {
-                    cd.innerHTML = count;
-                } else {
-                    clearInterval(timer);
-                    cd.style.display = 'none';
-                    document.getElementById('letter-wrapper').style.display = 'block';
-                    startTypewriter();
-                }
+                c--; if(c>0) cd.innerHTML = c;
+                else { clearInterval(timer); cd.style.display='none'; document.getElementById('letter-wrapper').style.display='block'; startTypewriter(); }
             }, 1000);
         }
 
         function startTypewriter() {
             document.getElementById('letter').classList.add('open-letter');
-            const text = "Happy Birthday, Rasmalai Aap! 🎈\n\nAaj aapka din hai, toh khoob enjoy kijiye. Aap jaisi hain, bilkul perfect hain. ❤️";
+            const text = "Happy Birthday, Rasmalai Aap! 🎈\n\nAaj aapka din hai. Aap jaisi hain, bilkul perfect hain. ❤️";
             let i = 0;
             function type() {
-                if (i < text.length) {
-                    document.getElementById('typewriter').innerHTML += text.charAt(i);
-                    i++; setTimeout(type, 50);
-                } else { document.getElementById('next-final').style.display = 'block'; }
+                if (i < text.length) { document.getElementById('typewriter').innerHTML += text.charAt(i); i++; setTimeout(type, 50); }
+                else document.getElementById('next-quiz').style.display = 'block';
             }
             setTimeout(type, 1000);
         }
 
-        function showFinalTrap() { document.getElementById('letter-wrapper').style.display = 'none'; document.getElementById('love-trap').style.display = 'block'; }
+        function showQuiz() { document.getElementById('letter-wrapper').style.display = 'none'; document.getElementById('quiz-section').style.display = 'block'; }
+        function showCake() { document.getElementById('quiz-section').style.display = 'none'; document.getElementById('cake-section').style.display = 'block'; }
+        function cutCake() { document.getElementById('cake-box').classList.add('cut'); document.getElementById('to-trap').style.display = 'block'; }
+        function showTrap() { document.getElementById('cake-section').style.display = 'none'; document.getElementById('love-trap').style.display = 'block'; }
+        
         function moveNo() { 
             const btn = document.getElementById('no-btn');
-            btn.style.left = Math.random() * 70 + 'vw';
-            btn.style.top = Math.random() * 70 + 'vh';
+            const padding = 50; 
+            const maxX = window.innerWidth - btn.offsetWidth - padding;
+            const maxY = window.innerHeight - btn.offsetHeight - padding;
+            btn.style.left = Math.max(padding, Math.floor(Math.random() * maxX)) + 'px';
+            btn.style.top = Math.max(padding, Math.floor(Math.random() * maxY)) + 'px';
         }
-        function celebrate() { document.getElementById('love-trap').style.display = 'none'; document.getElementById('final-success').style.display = 'block'; }
+
+        function celebrate() { 
+            // 1. Shake & Vibrate
+            document.body.classList.add('shake');
+            if (navigator.vibrate) navigator.vibrate(200);
+            
+            // 2. Music Switch
+            loveMusic.pause();
+            happyMusic.play();
+            
+            document.getElementById('love-trap').style.display = 'none'; 
+            document.getElementById('final-success').style.display = 'block'; 
+            setInterval(spawnEmoji, 300);
+            setTimeout(() => document.body.classList.remove('shake'), 500);
+        }
+
+        function spawnEmoji() {
+            const e = document.createElement('div'); e.className = 'float-emoji';
+            e.innerHTML = ['❤️','🌸','✨','🎀','🍰'][Math.floor(Math.random()*5)];
+            e.style.left = Math.random() * 100 + 'vw';
+            document.body.appendChild(e);
+            setTimeout(() => e.remove(), 5000);
+        }
     </script>
 </body>
-                </html>
-                
+</html>
