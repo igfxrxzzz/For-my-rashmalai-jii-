@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surprise for Rasmalai 🎂</title>
+    <style>
+        body { margin: 0; padding: 0; background: #fff0f3; font-family: 'Arial Rounded MT Bold', sans-serif; overflow: hidden; text-align: center; touch-action: manipulation; }
+        #game-container { position: relative; width: 100vw; height: 100vh; }
+        .balloon { position: absolute; bottom: -100px; width: 60px; height: 80px; border-radius: 50%; cursor: pointer; animation: floatUp 4s linear forwards; z-index: 5; }
+        @keyframes floatUp { to { transform: translateY(-115vh); } }
+        
+        .section { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; z-index: 100; }
+        
+        /* Password Style */
+        .pass-input { padding: 10px; border-radius: 10px; border: 2px solid #ffb7c5; margin-bottom: 10px; width: 60%; font-size: 1.2rem; }
+
+        /* Envelope */
+        .envelope { width: 280px; height: 180px; background: #ffb7c5; border-radius: 0 0 10px 10px; position: relative; margin: auto; }
+        .envelope::before { content: ""; position: absolute; top: -90px; left: 0; border-left: 140px solid transparent; border-right: 140px solid transparent; border-bottom: 90px solid #ffccd5; z-index: 2; }
+        .letter { position: absolute; bottom: 5px; left: 10px; right: 10px; background: white; padding: 15px; border-radius: 5px; transition: 1.2s ease-in-out; z-index: 1; font-size: 0.85rem; text-align: left; color: #333; line-height: 1.4; }
+        .open-letter { transform: translateY(-160px); z-index: 3 !important; }
+        
+        /* Gallery */
+        #gallery { overflow-y: auto; height: 90vh; background: #fff0f3; padding-top: 20px; }
+        .pic { width: 85%; max-width: 260px; border-radius: 12px; border: 6px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.1); margin: 15px auto; display: block; }
+
+        /* Star & Meter */
+        .star { font-size: 80px; cursor: pointer; filter: grayscale(1); transition: 3s linear; }
+        .star.glowing { filter: grayscale(0) drop-shadow(0 0 20px gold); transform: scale(1.2); }
+        #meter-container { width: 80%; height: 25px; background: #eee; border-radius: 15px; margin: 20px auto; border: 2px solid #ffb7c5; overflow: hidden; }
+        #meter-fill { width: 0%; height: 100%; background: #ff8fa3; transition: 0.2s; }
+
+        /* Cake */
+        .cake-model { position: relative; width: 160px; height: 100px; background: #ffe5ec; margin: 80px auto; border-radius: 20px 20px 10px 10px; box-shadow: 0 10px #ffc2d1; cursor: pointer; }
+        .kitty-on-cake { position: absolute; top: -75px; left: 50%; transform: translateX(-50%); font-size: 60px; }
+        .candle { position: absolute; top: -30px; left: 20%; width: 8px; height: 30px; background: #ff8fa3; border-radius: 5px; }
+        .flame { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 10px; height: 15px; background: #ffd60a; border-radius: 50%; animation: flicker 0.1s infinite alternate; }
+        @keyframes flicker { from { opacity: 0.8; } to { opacity: 1; } }
+        .knife { position: absolute; top: -40px; right: -50px; font-size: 45px; transform: rotate(-45deg); transition: 0.5s; }
+        .cut .knife { transform: rotate(-90deg) translate(-10px, 50px); }
+        .cut .flame { display: none; }
+
+        .btn-pookie { background: #ffb7c5; color: white; border: none; padding: 12px 25px; border-radius: 30px; cursor: pointer; margin-top: 10px; font-weight: bold; font-size: 1rem; }
+        .btn-trap { padding: 15px 40px; font-size: 1.2rem; border: none; border-radius: 30px; cursor: pointer; position: absolute; transition: 0.1s; font-weight: bold; }
+        #yes-btn { background: #ff8fa3; color: white; left: 15%; top: 350px; }
+        #no-btn { background: #adb5bd; color: white; right: 15%; top: 350px; }
+
+        .float-emoji { position: absolute; bottom: -50px; font-size: 35px; animation: floatUpEmoji 5s linear forwards; opacity: 0.8; z-index: 500; pointer-events: none; }
+        @keyframes floatUpEmoji { to { transform: translateY(-110vh) rotate(360deg); } }
+    </style>
+</head>
+<body onclick="spawnFlower(event)">
+    <audio id="love-music" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg"></audio>
+    
+    <div id="game-container">
+        <div id="start-screen" style="display: block; margin-top: 50%;">
+            <h1 style="color: #ff8fa3; padding:10px;">Aapke Liye Ek Surprise! 🎀</h1>
+            <button class="btn-pookie" onclick="startGame()">Shuru Karein Aap 🐾</button>
+        </div>
+        <div id="score" style="display:none; color:#ff8fa3; font-size: 1.5rem; font-weight: bold; padding: 20px;">Popped: <span id="count">0</span>/10</div>
+
+        <div id="pass-section" class="section">
+            <h2 style="color: #ff8fa3;">Secret Code Daaliye Aap 🔐</h2>
+            <input type="password" id="pass-input" class="pass-input" placeholder="Hint: Rasmalai">
+            <br>
+            <button class="btn-pookie" onclick="checkPass()">Unlock ✨</button>
+        </div>
+
+        <div id="envelope-wrapper" class="section">
+            <div class="envelope">
+                <div class="letter" id="letter">
+                    <b style="color:#ff4d6d;">Happy Birthday, Rasmalai Aap! 🎈</b><br><br>
+                    Aaj aapka din hai, toh khoob enjoy kijiye. Aap jaisi hain, bilkul perfect hain.
+                    <button class="btn-pookie" onclick="showGallery()">Yaadein Dekhiye 📸</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="gallery" class="section">
+            <h2 style="color: #ff8fa3;">Kuch Yaadein ✨</h2>
+            <img class="pic" src="https://i.ibb.co/6P06Fh9/image.png">
+            <img class="pic" src="https://i.ibb.co/8DTjNMd/image.png">
+            <img class="pic" src="https://i.ibb.co/23Y9HLS/image.png">
+            <img class="pic" src="https://i.ibb.co/chx4FbP/image.png">
+            <button class="btn-pookie" style="margin-bottom: 50px;" onclick="showQuiz()">Aage Badhiye ✨</button>
+        </div>
+
+        <div id="quiz-section" class="section">
+            <h2 style="color: #ff8fa3;">Sahi Jawaab Chuniye Aap: <br> "Mera Sabse Pyara Insaan Kaun Hai?"</h2>
+            <button class="btn-pookie" onclick="alert('Try Again! 😉')">Chocolate</button><br>
+            <button class="btn-pookie" onclick="showWish()">Aap (Rasmalai) ❤️</button><br>
+            <button class="btn-pookie" onclick="alert('Wo toh hai hi, par koi aur bhi hai! 😜')">Kitty 🐱</button>
+        </div>
+
+        <div id="wish-section" class="section">
+            <h2 style="color: #ff8fa3;">Star ko 3 second tak <br> daba kar rakhiye... ✨</h2>
+            <div id="wish-star" class="star" onmousedown="startGlow()" onmouseup="stopGlow()" ontouchstart="startGlow()" ontouchend="stopGlow()">⭐</div>
+        </div>
+
+        <div id="meter-section" class="section">
+            <h2 style="color: #ff8fa3;">Pookie Meter 100% bhariye! 📊</h2>
+            <div id="meter-container"><div id="meter-fill"></div></div>
+            <button class="btn-pookie" onclick="fillMeter()">TAP TAP! ❤️</button>
+        </div>
+
+        <div id="cake-section" class="section">
+            <h2 style="color: #ff8fa3;">Ab Cake Kaatiye Aap! 🍰</h2>
+            <div class="cake-model" id="main-cake" onclick="cutCake()">
+                <div class="kitty-on-cake">🐱🎀</div>
+                <div class="candle"><div class="flame"></div></div>
+                <div class="knife">🔪</div>
+            </div>
+            <button class="btn-pookie" id="next-trap-btn" style="display:none;" onclick="showLoveTrap()">Last Thing... 😉</button>
+        </div>
+
+        <div id="love-trap" class="section" style="background: white; height: 100vh;">
+            <h1 style="color: #ff7675; margin-top: 80px;">Kya aap mujhe <br>pasand karengi? ❤️</h1>
+            <button class="btn-trap" id="yes-btn" onclick="celebrateLove()">HAAN</button>
+            <button class="btn-trap" id="no-btn" onmouseover="moveNo()">NAHI</button>
+        </div>
+
+        <div id="final-success" class="section">
+            <div style="background:white; padding:30px; border-radius:25px; box-shadow:0 15px 40px rgba(0,0,0,0.15); border: 2px solid #ffccd5; width: 85%; margin: auto;">
+                <h1 style="color:#ff4d6d;">I Knew It! 😎</h1>
+                <p>Ab aap hamesha mere saath rahengi! <br><br> Happy Birthday, <b>Rasmalai</b>! ❤️✨</p>
+                <button class="btn-pookie" onclick="alert('Screenshot bhejiye! 😉')">Treat Claim Karein 🎁</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let popped = 0; let meterVal = 0; let glowTimer;
+        function startGame() {
+            document.getElementById('love-music').play().catch(() => {});
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('score').style.display = 'block';
+            const bInterval = setInterval(() => { if (popped >= 10) { clearInterval(bInterval); return; } createBalloon(); }, 600);
+        }
+        function createBalloon() {
+            const b = document.createElement('div'); b.className = 'balloon';
+            b.style.backgroundColor = ['#ffccd5','#ffb7c5','#ff8fa3','#ff4d6d'][Math.floor(Math.random()*4)];
+            b.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+            b.onclick = function() { this.remove(); popped++; document.getElementById('count').innerText = popped; if (popped === 10) { document.getElementById('score').style.display = 'none'; document.getElementById('pass-section').style.display = 'block'; } };
+            document.getElementById('game-container').appendChild(b);
+        }
+        function checkPass() {
+            const input = document.getElementById('pass-input').value.toLowerCase();
+            if(input === "rasmalai") { document.getElementById('pass-section').style.display = 'none'; document.getElementById('envelope-wrapper').style.display = 'block'; setTimeout(() => { document.getElementById('letter').classList.add('open-letter'); }, 500); }
+            else alert("Galat Code! Aapka nickname kya hai? 😉");
+        }
+        function showGallery() { document.getElementById('envelope-wrapper').style.display = 'none'; document.getElementById('gallery').style.display = 'block'; }
+        function showQuiz() { document.getElementById('gallery').style.display = 'none'; document.getElementById('quiz-section').style.display = 'block'; }
+        function showWish() { document.getElementById('quiz-section').style.display = 'none'; document.getElementById('wish-section').style.display = 'block'; }
+        function startGlow() { document.getElementById('wish-star').classList.add('glowing'); glowTimer = setTimeout(() => { alert("Wish Locked! ✨"); showMeter(); }, 3000); }
+        function stopGlow() { clearTimeout(glowTimer); document.getElementById('wish-star').classList.remove('glowing'); }
+        function showMeter() { document.getElementById('wish-section').style.display = 'none'; document.getElementById('meter-section').style.display = 'block'; }
+        function fillMeter() {
+            meterVal += 10; document.getElementById('meter-fill').style.width = meterVal + '%';
+            if (meterVal >= 100) { setTimeout(() => { document.getElementById('meter-section').style.display = 'none'; document.getElementById('cake-section').style.display = 'block'; }, 500); }
+        }
+        function cutCake() { document.getElementById('main-cake').classList.add('cut'); setTimeout(() => { document.getElementById('next-trap-btn').style.display = 'inline-block'; }, 1500); }
+        function showLoveTrap() { document.getElementById('cake-section').style.display = 'none'; document.getElementById('love-trap').style.display = 'block'; }
+        function moveNo() { const btn = document.getElementById('no-btn'); btn.style.left = Math.random() * (window.innerWidth - 120) + 'px'; btn.style.top = Math.random() * (window.innerHeight - 150) + 'px'; }
+        function celebrateLove() {
+            document.getElementById('love-trap').style.display = 'none'; document.getElementById('final-success').style.display = 'block';
+            setInterval(() => {
+                const e = document.createElement('div'); e.className = 'float-emoji';
+                e.innerHTML = ['❤️','🐱','🎀','✨','🌸'][Math.floor(Math.random()*5)];
+                e.style.left = Math.random() * 100 + 'vw'; document.body.appendChild(e);
+                setTimeout(() => e.remove(), 5000);
+            }, 200);
+        }
+        function spawnFlower(e) {
+            const f = document.createElement('div'); f.innerHTML = '🌸'; f.style.position = 'absolute';
+            f.style.left = e.clientX + 'px'; f.style.top = e.clientY + 'px'; f.style.fontSize = '25px'; f.style.pointerEvents = 'none';
+            document.body.appendChild(f); setTimeout(() => f.remove(), 800);
+        }
+    </script>
+</body>
+</html>
